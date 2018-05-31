@@ -1,17 +1,18 @@
 package org.lumi.exceltest;
 
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by John Tsantilis on 29/5/2018.
@@ -20,41 +21,72 @@ import java.util.Iterator;
  */
 
 public class ApachePOIExcelRead {
-    public void readExcelFile(String fileName) {
-        try {
-            FileInputStream excelFile = new FileInputStream(new File(fileName));
-            Workbook workbook = new XSSFWorkbook(excelFile);
-            Sheet datatypeSheet = workbook.getSheetAt(0);
-            Iterator<Row> iterator = datatypeSheet.iterator();
+    public static ArrayList<Cryptocurrency> readExistingWorkbook(String fileName, String sheetName,
+                                                          ArrayList<Cryptocurrency> cryptocurrencyList)
+            throws IOException {
+        //Get a Workbook from an Excel file (.xls or .xlsx)
+        FileInputStream excelFile = new FileInputStream(new File(fileName));
+        Workbook workbook = new XSSFWorkbook(excelFile);
 
-            while (iterator.hasNext()) {
-                Row currentRow = iterator.next();
-                Iterator<Cell> cellIterator = currentRow.iterator();
-                while (cellIterator.hasNext()) {
-                    Cell currentCell = cellIterator.next();
-                    //getCellTypeEnum shown as deprecated for version 3.15
-                    //getCellTypeEnum ill be renamed to getCellType starting from version 4.0
-                    if (currentCell.getCellTypeEnum() == CellType.STRING) {
-                        System.out.print(currentCell.getStringCellValue() + "--");
+        //Getting the Sheet with the specified name
+        Sheet sheet = workbook.getSheet(sheetName);
 
-                    } else if (currentCell.getCellTypeEnum() == CellType.NUMERIC) {
-                        System.out.print(currentCell.getNumericCellValue() + "--");
-
-                    }
-
-                }
-
-                System.out.println();
+        //Max 30 (zero-based)
+        for (int columnIndex = 1; columnIndex < 31; columnIndex++) {
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++){
+                Row row = CellUtil.getRow(rowIndex, sheet);
+                Cell cell = CellUtil.getCell(row, columnIndex);
+                //Create the data
+                String name = (String) getCellValue(
+                        CellUtil.getCell(
+                                CellUtil.getRow(0, sheet),
+                                columnIndex));
+                Double price = (Double) getCellValue(cell);
+                Date date = (Date) getCellValue(
+                        CellUtil.getCell(
+                                CellUtil.getRow(rowIndex, sheet),
+                                0));
+                //Add cryptocurrency data to List
+                cryptocurrencyList.add(new Cryptocurrency(name, price, date));
 
             }
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        }
 
-        } catch (IOException e) {
-            e.printStackTrace();
+        return cryptocurrencyList;
+
+    }
+
+    public static Object getCellValue(Cell cell) {
+        Object value;
+
+        switch (cell.getCellTypeEnum()) {
+            case BOOLEAN:
+                value = cell.getBooleanCellValue();
+                break;
+            case STRING:
+                value = cell.getRichStringCellValue().getString();
+                break;
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    value = cell.getDateCellValue();
+                } else {
+                    value = cell.getNumericCellValue();
+
+                }
+                break;
+            case FORMULA:
+                value = cell.getCellFormula();
+                break;
+            case BLANK:
+                value = 0.0;
+                break;
+            default:
+                value = null;
 
         }
+
+        return value;
 
     }
 

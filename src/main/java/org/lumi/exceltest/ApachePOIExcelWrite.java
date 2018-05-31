@@ -1,13 +1,21 @@
 package org.lumi.exceltest;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
+import org.apache.poi.ss.util.CellUtil;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import java.io.FileNotFoundException;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by John Tsantilis on 29/5/2018.
@@ -16,55 +24,47 @@ import java.io.IOException;
  */
 
 public class ApachePOIExcelWrite {
-    public static void main(String[] args) {
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Datatypes in Java");
-        Object[][] datatypes = {
-                {"Datatype", "Type", "Size(in bytes)"},
-                {"int", "Primitive", 2},
-                {"float", "Primitive", 4},
-                {"double", "Primitive", 8},
-                {"char", "Primitive", 1},
-                {"String", "Non-Primitive", "No fixed size"}
-        };
+    @SuppressWarnings("Duplicates")
+    public static void modifyExistingWorkbook(String fileName, String sheetName,
+                                              ArrayList<Cryptocurrency> cryptocurrencyList)
+            throws IOException, InvalidFormatException {
+        //Get a Workbook from an Excel file (.xls or .xlsx)
+        FileInputStream excelFile = new FileInputStream(new File(fileName));
+        Workbook workbook = new XSSFWorkbook(excelFile);
+        //Getting the Sheet with the specified name
+        Sheet sheet = workbook.getSheet(sheetName);
 
-        int rowNum = 0;
-        System.out.println("Creating excel");
+        //Max 30 (zero-based)
+        for (int columnIndex = 1; columnIndex < 31; columnIndex++) {
+            for (int rowIndex = 1; rowIndex <= sheet.getLastRowNum(); rowIndex++){
+                Row row = CellUtil.getRow(rowIndex, sheet);
+                Cell cell = CellUtil.getCell(row, columnIndex);
 
-        for (Object[] datatype : datatypes) {
-            Row row = sheet.createRow(rowNum++);
-            int colNum = 0;
-            for (Object field : datatype) {
-                Cell cell = row.createCell(colNum++);
-                if (field instanceof String) {
-                    cell.setCellValue((String) field);
-
-                } else if (field instanceof Integer) {
-                    cell.setCellValue((Integer) field);
+                //Create the cell if it doesn't exist
+                if (cell == null) {
+                    cell = row.createCell(columnIndex);
 
                 }
+
+                for (Cryptocurrency cryptocurrency:cryptocurrencyList) {
+                    //
+
+                }
+                //Enter the cell's value
+                //cell.setCellValue();
 
             }
 
         }
 
-        try {
-            FileOutputStream outputStream = new FileOutputStream(FILE_NAME);
-            workbook.write(outputStream);
-            workbook.close();
+        // Write the output to the file
+        FileOutputStream fileOut = new FileOutputStream(fileName);
+        workbook.write(fileOut);
+        fileOut.close();
 
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-
-        }
-
-        System.out.println("Done");
+        // Closing the workbook
+        workbook.close();
 
     }
-
-    private static final String FILE_NAME = "/home/lumi/Dropbox/unipi/Cryptocurrencies_forecasting/test.xlsx";
 
 }
