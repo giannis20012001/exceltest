@@ -25,7 +25,6 @@ public class app {
     //==================================================================================================================
     private static ArrayList<Cryptocurrency> cryptocurrencyList = new ArrayList<>();
 
-    private static final String FILE_NAME = "/home/lumi/Dropbox/unipi/paper_cryptocurrencies_forecasting/" +
-            "final_cryptocurrencies_fixed_data_pop.xlsx";
+    private static final String FILE_NAME = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 
 }
