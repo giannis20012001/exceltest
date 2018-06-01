@@ -15,8 +15,6 @@ public class app {
     public static void main(String[] args) throws IOException, InvalidFormatException {
         cryptocurrencyList = ApachePOIExcelRead.readExistingWorkbook(FILE_NAME, "Sheet2", cryptocurrencyList);
         System.out.println(cryptocurrencyList.size());
-        System.out.println(cryptocurrencyList.get(54779));
-
         ApachePOIExcelWrite.modifyExistingWorkbook(FILE_NAME, "Sheet3", cryptocurrencyList);
 
     }

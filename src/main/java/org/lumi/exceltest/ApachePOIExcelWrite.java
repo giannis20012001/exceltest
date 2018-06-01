@@ -46,12 +46,24 @@ public class ApachePOIExcelWrite {
 
                 }
 
-                for (Cryptocurrency cryptocurrency:cryptocurrencyList) {
-                    //
+                String name = (String) ApachePOIExcelRead.getCellValue(
+                        CellUtil.getCell(
+                                CellUtil.getRow(0, sheet),
+                                columnIndex));
+                Date date = (Date) ApachePOIExcelRead.getCellValue(
+                        CellUtil.getCell(
+                                CellUtil.getRow(rowIndex, sheet),
+                                0));
+
+                for (Cryptocurrency cryptocurrency : cryptocurrencyList) {
+                    if ((name.contentEquals(cryptocurrency.getName())) &&
+                            (date.compareTo(cryptocurrency.getDate()) == 0)) {
+                        //Enter the cell's value
+                        cell.setCellValue(cryptocurrency.getPrice());
+
+                    }
 
                 }
-                //Enter the cell's value
-                //cell.setCellValue();
 
             }
 
